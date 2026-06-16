@@ -1,0 +1,82 @@
+services:
+  sensor_temp_1:
+    image: igml1/sensor-sim:latest
+    container_name: sensor_temp_1
+    environment:
+      - SENSOR_TYPE=temperature
+      - SENSOR_NAME=temp_room
+      - MQTT_BROKER=mosquitto
+      - INTERVAL=3
+      - FORMULA_TYPE=sin
+    networks:
+      - lab2_net
+    restart: always
+
+  sensor_temp_2:
+    image: igml1/sensor-sim:latest
+    container_name: sensor_temp_2
+    environment:
+      - SENSOR_TYPE=temperature
+      - SENSOR_NAME=temp_outdoor
+      - MQTT_BROKER=mosquitto
+      - INTERVAL=5
+      - FORMULA_TYPE=random
+    networks:
+      - lab2_net
+    restart: always
+
+  sensor_pressure_1:
+    image: igml1/sensor-sim:latest
+    container_name: sensor_pressure_1
+    environment:
+      - SENSOR_TYPE=pressure
+      - SENSOR_NAME=pressure_main
+      - MQTT_BROKER=mosquitto
+      - INTERVAL=4
+      - FORMULA_TYPE=linear
+    networks:
+      - lab2_net
+    restart: always
+
+  sensor_pressure_2:
+    image: igml1/sensor-sim:latest
+    container_name: sensor_pressure_2
+    environment:
+      - SENSOR_TYPE=pressure
+      - SENSOR_NAME=pressure_backup
+      - MQTT_BROKER=mosquitto
+      - INTERVAL=7
+      - FORMULA_TYPE=random
+    networks:
+      - lab2_net
+    restart: always
+
+  sensor_current_1:
+    image: igml1/sensor-sim:latest
+    container_name: sensor_current_1
+    environment:
+      - SENSOR_TYPE=current
+      - SENSOR_NAME=current_line1
+      - MQTT_BROKER=mosquitto
+      - INTERVAL=2
+      - FORMULA_TYPE=sin
+    networks:
+      - lab2_net
+    restart: always
+
+  sensor_humidity_1:
+    image: igml1/sensor-sim:latest
+    container_name: sensor_humidity_1
+    environment:
+      - SENSOR_TYPE=humidity
+      - SENSOR_NAME=humidity_hall
+      - MQTT_BROKER=mosquitto
+      - INTERVAL=6
+      - FORMULA_TYPE=linear
+    networks:
+      - lab2_net
+    restart: always
+
+networks:
+  lab2_net:
+    external: true

@@ -1,27 +1,48 @@
-import paho.mqtt.client as paho
-from os import environ
+import os
 import time
+import json
+import paho.mqtt.client as mqtt
+from sensor import SENSOR_TYPES
 
-from entity.sensor import *
+BROKER_HOST = os.environ.get("MQTT_BROKER", "mosquitto")
+BROKER_PORT = int(os.environ.get("MQTT_PORT", "1883"))
+SENSOR_TYPE = os.environ.get("SENSOR_TYPE", "temperature")
+SENSOR_NAME = os.environ.get("SENSOR_NAME", "sensor1")
+INTERVAL = float(os.environ.get("INTERVAL", "5"))
+FORMULA_TYPE = os.environ.get("FORMULA_TYPE", "random")
+TOPIC_FORMAT = os.environ.get("TOPIC_FORMAT", "value")
 
-broker = "localhost" if "SIM_HOST" not in environ.keys() else environ["SIM_HOST"]
-port = 1883 if "SIM_PORT" not in environ.keys() else int(environ["SIM_PORT"])
-name = "sensor" if "SIM_NAME" not in environ.keys() else environ["SIM_NAME"]
-period = 1 if "SIM_PERIOD" not in environ.keys() else int(environ["SIM_PERIOD"])
-type_sim = "temperature" if "SIM_TYPE" not in environ.keys() else environ["SIM_TYPE"]
-sensors = {"temperature": Temperature, "pressure": Pressure, "current": Current}
+sensor_class = SENSOR_TYPES.get(SENSOR_TYPE, SENSOR_TYPES["temperature"])
+sensor = sensor_class(name=SENSOR_NAME, formula=FORMULA_TYPE)
 
+client = mqtt.Client()
 
-def on_publish(client, userdata, result):  # create function for callback
-    print(f"data published {userdata}")
-    pass
+def on_connect(c, userdata, flags, rc):
+    print(f"Connected to {BROKER_HOST}:{BROKER_PORT} (rc={rc})")
 
+client.on_connect = on_connect
 
-sensor = sensors[type_sim](name=name)
-client1 = paho.Client(sensor.name)  # create client object
-client1.on_publish = on_publish  # assign function to callback
-client1.connect(broker, port)  # establish connection
 while True:
-    sensor.generate_new_value()
-    ret = client1.publish("sensors/" + sensor.type + "/" + sensor.name, sensor.get_data())  # publish
-    time.sleep(period)
+    try:
+        client.connect(BROKER_HOST, BROKER_PORT, 60)
+        break
+    except Exception as e:
+        print(f"Broker not ready: {e}, retry in 3s...")
+        time.sleep(3)
+
+client.loop_start()
+
+topic_base = f"sensors/{SENSOR_TYPE}"
+
+while True:
+    value = sensor.read()
+    if TOPIC_FORMAT == "json":
+        topic = topic_base
+        payload = json.dumps({"name": SENSOR_NAME, "value": value})
+    else:
+        topic = f"{topic_base}/{SENSOR_NAME}"
+        payload = str(value)
+
+    client.publish(topic, payload)
+    print(f"[{SENSOR_NAME}] {topic} -> {payload}")
+    time.sleep(INTERVAL)
