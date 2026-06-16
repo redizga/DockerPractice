@@ -1,0 +1,130 @@
+{
+  "title": "Sensor Dashboard",
+  "uid": "sensors-main",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-5m", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "All Sensors - Time Series",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "uid": "influxdb-sensors" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "query": "SELECT \"value\" FROM \"sensor_data\" WHERE $timeFilter GROUP BY \"topic\"",
+          "alias": "$tag_topic"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "temp_room (Temperature)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 8 },
+      "datasource": { "uid": "influxdb-sensors" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "query": "SELECT last(\"value\") FROM \"sensor_data\" WHERE \"topic\" = 'sensors/temperature/temp_room' AND $timeFilter"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 3,
+      "title": "temp_outdoor (Temperature)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 8 },
+      "datasource": { "uid": "influxdb-sensors" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "query": "SELECT last(\"value\") FROM \"sensor_data\" WHERE \"topic\" = 'sensors/temperature/temp_outdoor' AND $timeFilter"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 4,
+      "title": "pressure_main (Pressure)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 8 },
+      "datasource": { "uid": "influxdb-sensors" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "query": "SELECT last(\"value\") FROM \"sensor_data\" WHERE \"topic\" = 'sensors/pressure/pressure_main' AND $timeFilter"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 5,
+      "title": "pressure_backup (Pressure)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 8 },
+      "datasource": { "uid": "influxdb-sensors" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "query": "SELECT last(\"value\") FROM \"sensor_data\" WHERE \"topic\" = 'sensors/pressure/pressure_backup' AND $timeFilter"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 6,
+      "title": "current_line1 (Current)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 8 },
+      "datasource": { "uid": "influxdb-sensors" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "query": "SELECT last(\"value\") FROM \"sensor_data\" WHERE \"topic\" = 'sensors/current/current_line1' AND $timeFilter"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 7,
+      "title": "humidity_hall (Humidity)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 8 },
+      "datasource": { "uid": "influxdb-sensors" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "query": "SELECT last(\"value\") FROM \"sensor_data\" WHERE \"topic\" = 'sensors/humidity/humidity_hall' AND $timeFilter"
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+    },
+    {
+      "id": 8,
+      "title": "Average across all sensors",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 12 },
+      "datasource": { "uid": "influxdb-sensors" },
+      "targets": [
+        {
+          "refId": "A",
+          "rawQuery": true,
+          "query": "SELECT mean(\"value\") FROM \"sensor_data\" WHERE $timeFilter GROUP BY \"topic\""
+        }
+      ],
+      "options": { "reduceOptions": { "calcs": ["mean"] } }
+    }
+  ]
+}
